@@ -1,12 +1,34 @@
-<header class="topbar">
-  <div class="container topbar-inner">
-    <a class="brand" routerLink="/">ERP Lite</a>
-    <nav aria-label="Main">
-      <a routerLink="/products" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Products</a>
-    </nav>
-  </div>
-</header>
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/" aria-label="ERP Lite home">
+      <span class="brand-mark" aria-hidden="true">E</span>
+      <span class="brand-text">ERP Lite</span>
+    </a>
 
-<main class="container">
-  <router-outlet />
-</main>
+    <nav aria-label="Main">
+      <p class="nav-section">Inventory</p>
+      <a routerLink="/products" routerLinkActive="active" ariaCurrentWhenActive="page">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 8 12 3 3 8v8l9 5 9-5V8Z" /><path d="m3 8 9 5 9-5" /><path d="M12 13v8" />
+        </svg>
+        <span>Products</span>
+      </a>
+    </nav>
+
+    <div class="side-foot">
+      <span class="env-dot" aria-hidden="true"></span>
+      <span>v0.1 · Inventory module</span>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <header class="topbar">
+      <span class="topbar-title">Inventory management</span>
+      <span class="currency">Currency: <strong>MAD</strong></span>
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

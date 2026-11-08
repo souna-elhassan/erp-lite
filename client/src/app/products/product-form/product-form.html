@@ -1,41 +1,56 @@
 <div class="page-head">
   <div>
+    <p class="muted crumbs"><a routerLink="/products">Products</a> <span aria-hidden="true">/</span> New</p>
     <h1>New product</h1>
     <p class="muted">Stock starts at zero. Use “Receive” on the product list to add stock.</p>
   </div>
 </div>
 
 <form class="card form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-  @if (error(); as message) {
-    <p class="alert" role="alert">{{ message }}</p>
-  }
-
-  <div class="field">
-    <label for="sku">SKU</label>
-    <input id="sku" formControlName="sku" autocomplete="off" [attr.aria-invalid]="invalid('sku')" />
-    @if (invalid('sku')) {
-      <span class="field-error">SKU is required (max 32 characters).</span>
-    }
+  <div class="card-head">
+    <h2>General information</h2>
+    <span class="muted field-hint"><span class="req">*</span> Required</span>
   </div>
 
-  <div class="field">
-    <label for="name">Name</label>
-    <input id="name" formControlName="name" autocomplete="off" [attr.aria-invalid]="invalid('name')" />
-    @if (invalid('name')) {
-      <span class="field-error">Name is required (max 200 characters).</span>
+  <div class="card-body">
+    @if (error(); as message) {
+      <p class="alert" role="alert">{{ message }}</p>
     }
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="sku">SKU<span class="req" aria-hidden="true">*</span></label>
+        <input id="sku" class="mono" formControlName="sku" autocomplete="off" placeholder="e.g. CHAIR-001" [attr.aria-invalid]="invalid('sku')" />
+        @if (invalid('sku')) {
+          <span class="field-error">SKU is required (max 32 characters).</span>
+        } @else {
+          <span class="field-hint">Unique stock-keeping code.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="unitPrice">Unit price<span class="req" aria-hidden="true">*</span></label>
+        <div class="input-affix">
+          <input id="unitPrice" type="number" min="0" step="0.01" formControlName="unitPrice" [attr.aria-invalid]="invalid('unitPrice')" />
+          <span class="affix">MAD</span>
+        </div>
+        @if (invalid('unitPrice')) {
+          <span class="field-error">Price cannot be negative.</span>
+        }
+      </div>
+
+      <div class="field span-2">
+        <label for="name">Name<span class="req" aria-hidden="true">*</span></label>
+        <input id="name" formControlName="name" autocomplete="off" placeholder="Product name" [attr.aria-invalid]="invalid('name')" />
+        @if (invalid('name')) {
+          <span class="field-error">Name is required (max 200 characters).</span>
+        }
+      </div>
+    </div>
   </div>
 
-  <div class="field">
-    <label for="unitPrice">Unit price (MAD)</label>
-    <input id="unitPrice" type="number" min="0" step="0.01" formControlName="unitPrice" [attr.aria-invalid]="invalid('unitPrice')" />
-    @if (invalid('unitPrice')) {
-      <span class="field-error">Price cannot be negative.</span>
-    }
-  </div>
-
-  <div class="actions">
-    <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Create product' }}</button>
+  <div class="card-foot">
     <a class="btn" routerLink="/products">Cancel</a>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Create product' }}</button>
   </div>
 </form>

@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -22,6 +22,18 @@ export class ProductList implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly busyId = signal<string | null>(null);
   protected readonly lowStock = LOW_STOCK_THRESHOLD;
+
+  /** Summary figures for the KPI cards, computed from the currently listed products. */
+  protected readonly stats = computed(() => {
+    const items = this.products();
+    return {
+      total: items.length,
+      active: items.filter((p) => p.isActive).length,
+      units: items.reduce((sum, p) => sum + p.quantityOnHand, 0),
+      value: items.reduce((sum, p) => sum + p.quantityOnHand * p.unitPrice, 0),
+      low: items.filter((p) => p.isActive && p.quantityOnHand <= LOW_STOCK_THRESHOLD).length,
+    };
+  });
 
   constructor() {
     this.search$

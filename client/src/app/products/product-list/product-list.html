@@ -1,76 +1,131 @@
 <div class="page-head">
   <div>
+    <p class="crumbs">Inventory <span aria-hidden="true">/</span> Products</p>
     <h1>Products</h1>
     <p class="muted">Catalog and stock on hand.</p>
   </div>
-  <a class="btn btn-primary" routerLink="/products/new">New product</a>
+  <div class="page-actions">
+    <a class="btn btn-primary" routerLink="/products/new">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+      New product
+    </a>
+  </div>
 </div>
 
-<div class="toolbar">
-  <label class="sr-only" for="search">Search products</label>
-  <input
-    id="search"
-    type="search"
-    placeholder="Search by SKU or name"
-    autocomplete="off"
-    (input)="onSearch($any($event.target).value)"
-  />
-</div>
+<section class="kpis" aria-label="Inventory summary">
+  <div class="kpi card">
+    <span class="kpi-label">Products</span>
+    <span class="kpi-value">{{ stats().total }}</span>
+    <span class="kpi-sub">{{ stats().active }} active</span>
+  </div>
+  <div class="kpi card">
+    <span class="kpi-label">Units on hand</span>
+    <span class="kpi-value">{{ stats().units | number }}</span>
+    <span class="kpi-sub">Across all products</span>
+  </div>
+  <div class="kpi card">
+    <span class="kpi-label">Stock value</span>
+    <span class="kpi-value">{{ stats().value | number: '1.2-2' }} <small>MAD</small></span>
+    <span class="kpi-sub">At unit price</span>
+  </div>
+  <div class="kpi card" [class.kpi-alert]="stats().low > 0">
+    <span class="kpi-label">Low stock</span>
+    <span class="kpi-value">{{ stats().low }}</span>
+    <span class="kpi-sub">At or below {{ lowStock }} units</span>
+  </div>
+</section>
 
 @if (error(); as message) {
-  <p class="alert" role="alert">{{ message }}</p>
+  <p class="alert" role="alert">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" /></svg>
+    {{ message }}
+  </p>
 }
 
-@if (loading()) {
-  <p class="muted" aria-live="polite">Loading…</p>
-} @else if (products().length === 0) {
-  <p class="muted">No products found.</p>
-} @else {
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">SKU</th>
-          <th scope="col">Name</th>
-          <th scope="col" class="num">Unit price</th>
-          <th scope="col" class="num">On hand</th>
-          <th scope="col">Stock movement</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (p of products(); track p.id) {
-          <tr [class.inactive]="!p.isActive">
-            <td class="mono">{{ p.sku }}</td>
-            <td>
-              {{ p.name }}
-              @if (!p.isActive) {
-                <span class="tag">Inactive</span>
-              }
-            </td>
-            <td class="num">{{ p.unitPrice | number: '1.2-2' }} MAD</td>
-            <td class="num">
-              <span [class.low]="p.quantityOnHand <= lowStock">{{ p.quantityOnHand }}</span>
-            </td>
-            <td>
-              <div class="movement">
-                <label class="sr-only" [for]="'qty-' + p.id">Quantity for {{ p.sku }}</label>
-                <input #qty [id]="'qty-' + p.id" type="number" min="1" step="1" placeholder="Qty" />
-                <button type="button" class="btn" [disabled]="busyId() === p.id" (click)="move(p, 'receive', qty)">
-                  Receive
-                </button>
-                <button
-                  type="button"
-                  class="btn"
-                  [disabled]="busyId() === p.id || !p.isActive"
-                  (click)="move(p, 'issue', qty)"
-                >
-                  Issue
-                </button>
-              </div>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+<div class="card">
+  <div class="card-head">
+    <h2>Product list</h2>
+    <div class="input-icon search">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+      <label class="sr-only" for="search">Search products</label>
+      <input
+        id="search"
+        type="search"
+        placeholder="Search by SKU or name"
+        autocomplete="off"
+        (input)="onSearch($any($event.target).value)"
+      />
+    </div>
   </div>
-}
+
+  @if (loading()) {
+    <div class="state" aria-live="polite">
+      <div class="spinner"></div>
+      <span>Loading…</span>
+    </div>
+  } @else if (products().length === 0) {
+    <div class="state">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 8 12 3 3 8v8l9 5 9-5V8Z" /><path d="m3 8 9 5 9-5" /><path d="M12 13v8" />
+      </svg>
+      <strong>No products found</strong>
+      <span>Try another search, or create your first product.</span>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">SKU</th>
+            <th scope="col">Name</th>
+            <th scope="col">Status</th>
+            <th scope="col" class="num">Unit price</th>
+            <th scope="col" class="num">On hand</th>
+            <th scope="col">Stock movement</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of products(); track p.id) {
+            <tr [class.inactive]="!p.isActive">
+              <td class="mono sku">{{ p.sku }}</td>
+              <td class="name">{{ p.name }}</td>
+              <td>
+                @if (!p.isActive) {
+                  <span class="badge">Inactive</span>
+                } @else if (p.quantityOnHand <= lowStock) {
+                  <span class="badge badge-warning">Low stock</span>
+                } @else {
+                  <span class="badge badge-success">In stock</span>
+                }
+              </td>
+              <td class="num">{{ p.unitPrice | number: '1.2-2' }} <span class="cur">MAD</span></td>
+              <td class="num">
+                <span class="qty" [class.low]="p.quantityOnHand <= lowStock">{{ p.quantityOnHand }}</span>
+              </td>
+              <td>
+                <div class="movement">
+                  <label class="sr-only" [for]="'qty-' + p.id">Quantity for {{ p.sku }}</label>
+                  <input #qty [id]="'qty-' + p.id" type="number" min="1" step="1" placeholder="Qty" />
+                  <button type="button" class="btn btn-sm" [disabled]="busyId() === p.id" (click)="move(p, 'receive', qty)">
+                    <svg class="icon in" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" /></svg>
+                    Receive
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    [disabled]="busyId() === p.id || !p.isActive"
+                    (click)="move(p, 'issue', qty)"
+                  >
+                    <svg class="icon out" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+                    Issue
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-foot">{{ products().length }} {{ products().length === 1 ? 'product' : 'products' }}</div>
+  }
+</div>
