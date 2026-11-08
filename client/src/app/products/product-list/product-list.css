@@ -1,0 +1,16 @@
+.toolbar { margin: 0 0 16px; }
+.toolbar input { width: min(360px, 100%); }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
+th { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+tbody tr:last-child td { border-bottom: 0; }
+.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mono { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+.inactive td { color: var(--muted); }
+.low { color: var(--danger); font-weight: 600; }
+.tag { margin-left: 6px; font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--surface-2); color: var(--muted); }
+
+.movement { display: flex; gap: 6px; align-items: center; }
+.movement input { width: 72px; }

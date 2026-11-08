@@ -1,0 +1,40 @@
+# Full stack for a local demo: SQL Server + API + Angular (nginx).
+#   docker compose up --build   →   http://localhost:8080
+# The SA password below is for this local demo only. Override it with MSSQL_SA_PASSWORD.
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-ErpLite_Local_Demo_2026!}
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  api:
+    build:
+      context: .
+      dockerfile: src/ErpLite.Api/Dockerfile
+    environment:
+      ConnectionStrings__ErpLite: "Server=sqlserver;Database=ErpLite;User Id=sa;Password=${MSSQL_SA_PASSWORD:-ErpLite_Local_Demo_2026!};TrustServerCertificate=True"
+      Database__MigrateOnStartup: "true"
+      Database__SeedDemoData: "true"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./client
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+
+volumes:
+  sqldata:

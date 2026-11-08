@@ -1,0 +1,7 @@
+.topbar { border-bottom: 1px solid var(--border); background: var(--surface); }
+.topbar-inner { display: flex; align-items: center; gap: 24px; height: 56px; }
+.brand { font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -.01em; }
+nav { display: flex; gap: 16px; }
+nav a { color: var(--muted); text-decoration: none; font-size: 14px; padding: 4px 0; border-bottom: 2px solid transparent; }
+nav a.active { color: var(--text); border-bottom-color: var(--accent); }
+main { padding-top: 28px; padding-bottom: 48px; }
